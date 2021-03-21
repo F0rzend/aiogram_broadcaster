@@ -10,8 +10,14 @@ async def message_handler(msg: types.Message):
     """
     On any msg bot will be return chat_id to user
     """
-    users = [msg.from_user.id]
-    await TextBroadcaster(users, text="U'r id: $chat_id").run()  # run mailing
+    chats = [
+        dict(
+            chat_id=msg.from_user.id,
+            mention=msg.from_user.get_mention(as_html=True)
+        )
+
+    ]
+    await TextBroadcaster(chats, text="$mention, u'r id: <code>$chat_id</code>", parse_mode='HTML').run()  # run mailing
 
 
 async def main():
