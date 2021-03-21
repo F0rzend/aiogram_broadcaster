@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aiogram_broadcaster"
-version = "0.1.0"
+version = "0.0.1"
 description = "Simple and lightweight library based on aiogram for creating telegram mailings"
 authors = ["F0rzend"]
 readme = "README.md"
