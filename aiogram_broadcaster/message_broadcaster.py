@@ -17,21 +17,25 @@ class MessageBroadcaster(BaseBroadcaster):
             self,
             chats: ChatsType,
             message: Message,
+            args: Optional[Dict] = None,
             disable_notification: Optional[bool] = None,
             reply_to_message_id: Optional[int] = None,
             allow_sending_without_reply: Optional[bool] = None,
             reply_markup: MarkupType = None,
             bot: Optional[Bot] = None,
+            bot_token: Optional[str] = None,
             timeout: float = 0.02,
             logger=__name__
     ):
         super().__init__(
             chats=chats,
+            args=args,
             disable_notification=disable_notification,
             reply_to_message_id=reply_to_message_id,
             allow_sending_without_reply=allow_sending_without_reply,
             reply_markup=reply_markup,
             bot=bot,
+            bot_token=bot_token,
             timeout=timeout,
             logger=logger,
         )

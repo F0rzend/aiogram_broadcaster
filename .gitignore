@@ -29,8 +29,9 @@ wheels/
 venv/
 ENV/
 
-# JetBrains
+# IDE-specific files
 .idea/
+.vscode/
 
 # Development zone
 dev/
