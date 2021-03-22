@@ -24,7 +24,6 @@ class BaseBroadcaster(abc.ABC):
             logger=__name__,
     ):
         self._setup_chats(chats, args)
-        print(self.chats)
         self.disable_notification = disable_notification
         self.disable_web_page_preview = disable_web_page_preview
         self.reply_to_message_id = reply_to_message_id
