@@ -17,6 +17,7 @@ class MessageBroadcaster(BaseBroadcaster):
             self,
             chats: ChatsType,
             message: Message,
+            args: Optional[Dict] = None,
             disable_notification: Optional[bool] = None,
             reply_to_message_id: Optional[int] = None,
             allow_sending_without_reply: Optional[bool] = None,
@@ -28,6 +29,7 @@ class MessageBroadcaster(BaseBroadcaster):
     ):
         super().__init__(
             chats=chats,
+            args=args,
             disable_notification=disable_notification,
             reply_to_message_id=reply_to_message_id,
             allow_sending_without_reply=allow_sending_without_reply,

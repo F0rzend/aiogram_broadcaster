@@ -12,6 +12,7 @@ class BaseBroadcaster(abc.ABC):
     def __init__(
             self,
             chats: ChatsType,
+            args: Optional[Dict] = None,
             disable_notification: Optional[bool] = None,
             disable_web_page_preview: Optional[bool] = None,
             reply_to_message_id: Optional[int] = None,
@@ -22,7 +23,8 @@ class BaseBroadcaster(abc.ABC):
             timeout: float = 0.02,
             logger=__name__,
     ):
-        self._setup_chats(chats)
+        self._setup_chats(chats, args)
+        print(self.chats)
         self.disable_notification = disable_notification
         self.disable_web_page_preview = disable_web_page_preview
         self.reply_to_message_id = reply_to_message_id
@@ -56,16 +58,16 @@ class BaseBroadcaster(abc.ABC):
             self.bot = bot
         return bot
 
-    def _setup_chats(self, chats: ChatsType):
+    def _setup_chats(self, chats: ChatsType, args: Optional[Dict] = None):
         if isinstance(chats, int) or isinstance(chats, str):
-            self.chats = [{'chat_id': chats}]
+            self.chats = [{'chat_id': chats, **args}]
         elif isinstance(chats, list):
             if all([
                 isinstance(chat, int) or isinstance(chat, str)
                 for chat in chats
             ]):
                 self.chats = [
-                    {'chat_id': chat} for chat in chats
+                    {'chat_id': chat, **args} for chat in chats
                 ]
             elif all([
                 isinstance(chat, dict)
@@ -76,7 +78,8 @@ class BaseBroadcaster(abc.ABC):
                 if not self._chek_identical_keys(dicts=chats):
                     raise ValueError('Not all dictionaries have identical keys')
                 self.chats = [
-                    {'chat_id': args.pop('chat_id'), **args} for args in chats if args.get('chat_id', None)
+                    {'chat_id': chat.pop('chat_id'), **chat, **args}
+                    for chat in chats if chat.get('chat_id', None)
                 ]
         else:
             raise TypeError(f'argument chats: expected {ChatsType}, got "{type(chats)}"')
