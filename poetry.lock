@@ -126,11 +126,12 @@ python-versions = ">=3.6"
 [package.dependencies]
 idna = ">=2.0"
 multidict = ">=4.0"
+typing-extensions = {version = ">=3.7.4", markers = "python_version < \"3.8\""}
 
 [metadata]
 lock-version = "1.1"
-python-versions = "^3.9"
-content-hash = "5ed44528a209aeffc4417eeadfb0e6978f01678c8e44023d6b54201abe7cbc8e"
+python-versions = "3.7"
+content-hash = "0e12b230bae37a03f280a234b9e9d2cde2b740f00fd583b9924fc2361082414a"
 
 [metadata.files]
 aiogram = [
