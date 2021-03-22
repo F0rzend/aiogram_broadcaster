@@ -46,9 +46,9 @@ class BaseBroadcaster(abc.ABC):
             if bot:
                 self.bot = bot
             else:
-                raise ValueError('Вы должны передать бота или токен')
+                raise ValueError('You should either pass a bot instance or a token')
         if bot and token:
-            raise ValueError('Вы не можете передать и бота и токен')
+            raise ValueError('You can’t pass both bot and token')
         if bot:
             self.bot = bot
         elif token:
@@ -72,7 +72,7 @@ class BaseBroadcaster(abc.ABC):
                 for chat in chats
             ]):
                 if not all([chat.get('chat_id') for chat in chats]):
-                    raise ValueError('Not all dictionaries "chat_id" key')
+                    raise ValueError('Not all dictionaries have the "chat_id" key')
                 if not self._chek_identical_keys(dicts=chats):
                     raise ValueError('Not all dictionaries have identical keys')
                 self.chats = [
@@ -103,7 +103,7 @@ class BaseBroadcaster(abc.ABC):
             ):
                 count += 1
             await asyncio.sleep(self.timeout)
-        logging.info(f'{count}/{len(self.chats)} messages sent out')
+        logging.info(f'{count}/{len(self.chats)} messages were sent out')
 
     async def close_bot(self):
         logging.warning('GOODBYE')

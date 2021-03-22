@@ -8,7 +8,7 @@ import logging
 
 async def message_handler(msg: types.Message):
     """
-    On any msg bot will be flood to user
+    The broadcaster will flood to a user whenever it receives a message
     """
     users = [msg.from_user.id] * 5  # Your users list
     await MessageBroadcaster(users, msg).run()  # run mailing
