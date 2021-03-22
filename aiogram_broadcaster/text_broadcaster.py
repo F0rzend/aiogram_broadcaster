@@ -21,6 +21,7 @@ class TextBroadcaster(BaseBroadcaster):
             allow_sending_without_reply: Optional[bool] = None,
             reply_markup: MarkupType = None,
             bot: Optional[Bot] = None,
+            bot_token: Optional[str] = None,
             timeout: float = 0.02,
             logger=__name__,
     ):
@@ -31,6 +32,7 @@ class TextBroadcaster(BaseBroadcaster):
             allow_sending_without_reply=allow_sending_without_reply,
             reply_markup=reply_markup,
             bot=bot,
+            bot_token=bot_token,
             timeout=timeout,
             logger=logger,
         )

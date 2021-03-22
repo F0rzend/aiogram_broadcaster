@@ -18,6 +18,7 @@ class BaseBroadcaster(abc.ABC):
             allow_sending_without_reply: Optional[bool] = None,
             reply_markup: MarkupType = None,
             bot: Optional[Bot] = None,
+            bot_token: Optional[str] = None,
             timeout: float = 0.02,
             logger=__name__,
     ):
@@ -27,17 +28,33 @@ class BaseBroadcaster(abc.ABC):
         self.reply_to_message_id = reply_to_message_id
         self.allow_sending_without_reply = allow_sending_without_reply
         self.reply_markup = reply_markup
-        bot = bot if bot else Bot.get_current()
-        if bot:
-            self.bot = bot
-        else:
-            raise ValueError('You need to pass bot')
+        self._setup_bot(bot, bot_token)
         self.timeout = timeout
 
         if not isinstance(logger, logging.Logger):
             logger = logging.getLogger(logger)
 
         self.logger = logger
+
+    def _setup_bot(
+            self,
+            bot: Optional[Bot] = None,
+            token: Optional[str] = None,
+    ) -> Bot:
+        if not (bot or token):
+            bot = Bot.get_current()
+            if bot:
+                self.bot = bot
+            else:
+                raise ValueError('Вы должны передать бота или токен')
+        if bot and token:
+            raise ValueError('Вы не можете передать и бота и токен')
+        if bot:
+            self.bot = bot
+        elif token:
+            bot = Bot(token=token)
+            self.bot = bot
+        return bot
 
     def _setup_chats(self, chats: ChatsType):
         if isinstance(chats, int) or isinstance(chats, str):
@@ -87,3 +104,7 @@ class BaseBroadcaster(abc.ABC):
                 count += 1
             await asyncio.sleep(self.timeout)
         logging.info(f'{count}/{len(self.chats)} messages sent out')
+
+    async def close_bot(self):
+        logging.warning('GOODBYE')
+        await self.bot.session.close()
