@@ -172,15 +172,11 @@ class MessageBroadcaster(BaseBroadcaster):
 
     async def send(
             self,
-            chat: Dict,
+            chat_id: ChatIdType,
+            chat_args: Dict,
     ) -> bool:
-        if isinstance(chat, Dict):
-            chat_id = chat.get('chat_id')
-            text_args = chat
-        else:
-            return False
         try:
-            msg = self.get_updated_message(self.message, text_args)
+            msg = self.get_updated_message(self.message, chat_args)
             await self.send_copy(
                 message=msg,
                 chat_id=chat_id,
@@ -195,7 +191,7 @@ class MessageBroadcaster(BaseBroadcaster):
                 f"Target [ID:{chat_id}]: Flood limit is exceeded. Sleep {e.timeout} seconds."
             )
             await sleep(e.timeout)
-            return await self.send(chat_id)  # Recursive call
+            return await self.send(chat_id, chat_args)  # Recursive call
         except (
                 exceptions.BotBlocked,
                 exceptions.ChatNotFound,
