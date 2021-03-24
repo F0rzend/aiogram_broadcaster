@@ -40,10 +40,10 @@ class BaseBroadcaster(abc.ABC):
 
         self.logger = logger
 
-        self._id = len(BaseBroadcaster.running)
-        self._is_running = False
-        self._successful = []
-        self._failure = []
+        self._id: int = len(BaseBroadcaster.running)
+        self._is_running: bool = False
+        self._successful: List[Dict] = []
+        self._failure: List[Dict] = []
 
     def __str__(self):
         attributes = [
@@ -61,6 +61,22 @@ class BaseBroadcaster(abc.ABC):
             raise RunningError(self._is_running)
         else:
             return self._successful
+
+    def get_successful(self, id_only: bool = False):
+        if id_only:
+            return [chat['chat_id'] for chat in self.successful]
+        else:
+            return self.successful
+
+    @property
+    def failure(self):
+        return self._failure
+
+    def get_failure(self, id_only: bool = False):
+        if id_only:
+            return [chat['chat_id'] for chat in self.failure]
+        else:
+            return self.failure
 
     def _setup_bot(
             self,
@@ -129,21 +145,29 @@ class BaseBroadcaster(abc.ABC):
     ) -> bool:
         pass
 
-    async def run(self) -> NoReturn:
-        self._is_running = True
-        BaseBroadcaster.running.append(self)
+    def _change_running_status(self, run: bool) -> NoReturn:
+        self._is_running = run
+        if run:
+            BaseBroadcaster.running.append(self)
+        else:
+            BaseBroadcaster.running.remove(self)
+
+    async def _start_broadcast(self) -> NoReturn:
         for chat in self.chats:
             logging.info(str(self))
             chat_id, chat_args = self._parse_args(chat)
             if await self.send(chat_id=chat_id, chat_args=chat_args):
-                self._successful.append(chat_id)
+                self._successful.append(chat)
             else:
                 self._failure.append(chat)
             await asyncio.sleep(self.timeout)
-        self._is_running = False
-        BaseBroadcaster.running.remove(self)
+
+    async def run(self) -> NoReturn:
+        self._change_running_status(True)
+        await self._start_broadcast()
+        self._change_running_status(False)
         logging.info(f'{len(self._successful)}/{len(self.chats)} messages were sent out')
 
-    async def close_bot(self):
+    async def close_bot(self) -> NoReturn:
         logging.warning('GOODBYE')
         await self.bot.session.close()
