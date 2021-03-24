@@ -1,5 +1,6 @@
 [![PyPI version](https://img.shields.io/pypi/v/aiogram-broadcaster.svg)](https://pypi.org/project/aiogram-broadcaster/0.0.2/) [![Python](https://img.shields.io/badge/Python-3.7+-green)](https://www.python.org/downloads/) [![Aiogram](https://img.shields.io/badge/aiogram-2.11+-blue)](https://pypi.org/project/aiogram/) 
 
+
 # Aiogram Broadcaster
 
 A simple and straightforward broadcasting implementation for aiogram
