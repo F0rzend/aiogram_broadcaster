@@ -99,6 +99,8 @@ class BaseBroadcaster(abc.ABC):
         return bot
 
     def _setup_chats(self, chats: ChatsType, args: Optional[Dict] = None):
+        if not args:
+            args = {}
         if isinstance(chats, int) or isinstance(chats, str):
             self.chats = [{'chat_id': chats, **args}]
         elif isinstance(chats, list):
