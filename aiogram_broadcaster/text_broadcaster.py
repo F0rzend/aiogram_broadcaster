@@ -5,7 +5,7 @@ from typing import Dict, Optional
 from aiogram import Bot
 from aiogram.utils import exceptions
 
-from .types import ChatsType, MarkupType, TextType
+from .types import ChatsType, MarkupType, TextType, ChatIdType
 from .base import BaseBroadcaster
 
 
@@ -42,19 +42,21 @@ class TextBroadcaster(BaseBroadcaster):
         self.parse_mode = parse_mode
         self.disable_web_page_preview = disable_web_page_preview
 
+    def get_text(self, as_str: bool = True):
+        if as_str:
+            return self.text if isinstance(self.text, str) else self.text.template
+        else:
+            return self.text
+
     async def send(
             self,
-            chat: Dict,
+            chat_id: ChatIdType,
+            chat_args: Dict,
     ) -> bool:
-        if isinstance(chat, Dict):
-            chat_id = chat.get('chat_id')
-            text_args = chat
-        else:
-            return False
         try:
             await self.bot.send_message(
                 chat_id=chat_id,
-                text=self.text.safe_substitute(text_args),
+                text=self.text.safe_substitute(chat_args),
                 parse_mode=self.parse_mode,
                 disable_web_page_preview=self.disable_web_page_preview,
                 disable_notification=self.disable_notification,
@@ -67,7 +69,7 @@ class TextBroadcaster(BaseBroadcaster):
                 f"Target [ID:{chat_id}]: Flood limit is exceeded. Sleep {e.timeout} seconds."
             )
             await sleep(e.timeout)
-            return await self.send(chat_id)  # Recursive call
+            return await self.send(chat_id, chat_args)  # Recursive call
         except (
                 exceptions.BotBlocked,
                 exceptions.ChatNotFound,
