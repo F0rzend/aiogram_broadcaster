@@ -1,6 +1,6 @@
 from asyncio import sleep
 from string import Template
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 from aiogram import Bot
 from aiogram.utils import exceptions
@@ -14,7 +14,7 @@ class TextBroadcaster(BaseBroadcaster):
             self,
             chats: ChatsType,
             text: TextType,
-            args: Optional[Dict] = None,
+            kwargs: Optional[Dict] = None,
             parse_mode: Optional[str] = None,
             disable_web_page_preview: Optional[bool] = None,
             disable_notification: Optional[bool] = None,
@@ -28,7 +28,7 @@ class TextBroadcaster(BaseBroadcaster):
     ):
         super().__init__(
             chats=chats,
-            args=args,
+            kwargs=kwargs,
             disable_notification=disable_notification,
             reply_to_message_id=reply_to_message_id,
             allow_sending_without_reply=allow_sending_without_reply,
@@ -42,7 +42,7 @@ class TextBroadcaster(BaseBroadcaster):
         self.parse_mode = parse_mode
         self.disable_web_page_preview = disable_web_page_preview
 
-    def get_text(self, as_str: bool = True):
+    def get_text(self, as_str: bool = True) -> Union[str, Template]:
         if as_str:
             return self.text if isinstance(self.text, str) else self.text.template
         else:

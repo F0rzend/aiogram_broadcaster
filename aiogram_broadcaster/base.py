@@ -1,7 +1,7 @@
 import abc
 import asyncio
 import logging
-from typing import Dict, NoReturn, Optional, Tuple, List
+from typing import Dict, Optional, Tuple, List, Union
 
 from aiogram import Bot
 
@@ -45,7 +45,7 @@ class BaseBroadcaster(abc.ABC):
         self._successful: List[Dict] = []
         self._failure: List[Dict] = []
 
-    def __str__(self):
+    def __str__(self) -> str:
         attributes = [
             ('id', self._id),
             ('is_running', self._is_running),
@@ -56,23 +56,23 @@ class BaseBroadcaster(abc.ABC):
         return f'<{self.__class__.__name__}({attributes})>'
 
     @property
-    def successful(self):
+    def successful(self) -> List[Dict]:
         if not self._is_running:
             raise RunningError(self._is_running)
         else:
             return self._successful
 
-    def get_successful(self, id_only: bool = False):
+    def get_successful(self, id_only: bool = False) -> Union[List[Dict], List[ChatIdType]]:
         if id_only:
             return [chat['chat_id'] for chat in self.successful]
         else:
             return self.successful
 
     @property
-    def failure(self):
+    def failure(self) -> List[Dict]:
         return self._failure
 
-    def get_failure(self, id_only: bool = False):
+    def get_failure(self, id_only: bool = False) -> Union[List[Dict], List[ChatIdType]]:
         if id_only:
             return [chat['chat_id'] for chat in self.failure]
         else:
@@ -98,7 +98,7 @@ class BaseBroadcaster(abc.ABC):
             self.bot = bot
         return bot
 
-    def _setup_chats(self, chats: ChatsType, kwargs: Optional[Dict] = None):
+    def _setup_chats(self, chats: ChatsType, kwargs: Optional[Dict] = None) -> None:
         if not kwargs:
             kwargs = {}
         if isinstance(chats, int) or isinstance(chats, str):
@@ -140,21 +140,17 @@ class BaseBroadcaster(abc.ABC):
         return chat_id, text_args
 
     @abc.abstractmethod
-    async def send(
-            self,
-            chat_id: ChatIdType,
-            chat_args: dict,
-    ) -> bool:
+    async def send(self, chat_id: ChatIdType, chat_args: dict) -> bool:
         pass
 
-    def _change_running_status(self, run: bool) -> NoReturn:
+    def _change_running_status(self, run: bool) -> None:
         self._is_running = run
         if run:
             BaseBroadcaster.running.append(self)
         else:
             BaseBroadcaster.running.remove(self)
 
-    async def _start_broadcast(self) -> NoReturn:
+    async def _start_broadcast(self) -> None:
         for chat in self.chats:
             logging.info(str(self))
             chat_id, chat_args = self._parse_args(chat)
@@ -164,12 +160,12 @@ class BaseBroadcaster(abc.ABC):
                 self._failure.append(chat)
             await asyncio.sleep(self.timeout)
 
-    async def run(self) -> NoReturn:
+    async def run(self) -> None:
         self._change_running_status(True)
         await self._start_broadcast()
         self._change_running_status(False)
         logging.info(f'{len(self._successful)}/{len(self.chats)} messages were sent out')
 
-    async def close_bot(self) -> NoReturn:
+    async def close_bot(self) -> None:
         logging.warning('GOODBYE')
         await self.bot.session.close()

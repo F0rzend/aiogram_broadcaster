@@ -17,7 +17,7 @@ class MessageBroadcaster(BaseBroadcaster):
             self,
             chats: ChatsType,
             message: Message,
-            args: Optional[Dict] = None,
+            kwargs: Optional[Dict] = None,
             disable_notification: Optional[bool] = None,
             reply_to_message_id: Optional[int] = None,
             allow_sending_without_reply: Optional[bool] = None,
@@ -29,7 +29,7 @@ class MessageBroadcaster(BaseBroadcaster):
     ):
         super().__init__(
             chats=chats,
-            args=args,
+            kwargs=kwargs,
             disable_notification=disable_notification,
             reply_to_message_id=reply_to_message_id,
             allow_sending_without_reply=allow_sending_without_reply,
@@ -158,7 +158,7 @@ class MessageBroadcaster(BaseBroadcaster):
             raise TypeError("This type of message can't be copied.")
 
     @staticmethod
-    def get_updated_message(message: Message, text_args: dict):
+    def get_updated_message(message: Message, text_args: dict) -> Message:
         msg = deepcopy(message)
         text = Template(msg.html_text).safe_substitute(text_args) if (msg.text or msg.caption) else None
         if msg.caption:
