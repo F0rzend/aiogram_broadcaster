@@ -23,7 +23,7 @@ class BaseBroadcaster(abc.ABC):
             reply_markup: MarkupType = None,
             bot: Optional[Bot] = None,
             bot_token: Optional[str] = None,
-            timeout: float = 0.02,
+            timeout: float = 0.05,
             logger=__name__,
     ):
         self._setup_chats(chats, kwargs)
