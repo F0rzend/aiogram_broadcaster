@@ -35,7 +35,7 @@ class BaseBroadcaster(abc.ABC):
         self._setup_bot(bot, bot_token)
         self.timeout = timeout
 
-        if not isinstance(logger, logging.Logger):
+        if isinstance(logger, str):
             logger = logging.getLogger(logger)
 
         self.logger = logger

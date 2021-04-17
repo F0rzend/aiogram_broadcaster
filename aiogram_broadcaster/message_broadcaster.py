@@ -74,7 +74,7 @@ class MessageBroadcaster(BaseBroadcaster):
         else:
             text = None
 
-        if message.text:
+        if message.content_type:
             kwargs["disable_web_page_preview"] = disable_web_page_preview
             return await message.bot.send_message(text=text, **kwargs)
         elif message.audio:
