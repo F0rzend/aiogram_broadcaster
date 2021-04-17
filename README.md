@@ -1,4 +1,4 @@
-[![PyPI version](https://img.shields.io/pypi/v/aiogram-broadcaster.svg)](https://pypi.org/project/aiogram-broadcaster/) [![Python](https://img.shields.io/badge/Python-3.7+-green)](https://www.python.org/downloads/) [![Aiogram](https://img.shields.io/badge/aiogram-2.11+-blue)](https://pypi.org/project/aiogram/) [![Upload Python Package](https://github.com/fonco/aiogram_broadcaster/actions/workflows/main.yml/badge.svg)](https://github.com/fonco/aiogram_broadcaster/actions/workflows/main.yml)
+[![PyPI version](https://img.shields.io/pypi/v/aiogram-broadcaster.svg)](https://pypi.org/project/aiogram-broadcaster/) [![Python](https://img.shields.io/badge/Python-3.7+-green)](https://www.python.org/downloads/) [![Aiogram](https://img.shields.io/badge/aiogram-2.11+-blue)](https://pypi.org/project/aiogram/) [![Upload Python Package](https://github.com/F0rzend/aiogram_broadcaster/actions/workflows/main.yml/badge.svg)](https://github.com/F0rzend/aiogram_broadcaster/actions/workflows/main.yml)
 
 
 # Aiogram Broadcaster
