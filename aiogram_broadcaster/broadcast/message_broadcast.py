@@ -8,11 +8,11 @@ from aiogram import Bot
 from aiogram.types import Message, ParseMode
 from aiogram.utils import exceptions
 
-from .types import ChatsType, MarkupType, ChatIdType
-from .base import BaseBroadcaster
+from aiogram_broadcaster.types import ChatsType, MarkupType, ChatIdType
+from aiogram_broadcaster.broadcast.base_broadcast import BaseBroadcast
 
 
-class MessageBroadcaster(BaseBroadcaster):
+class MessageBroadcast(BaseBroadcast):
     def __init__(
             self,
             chats: ChatsType,

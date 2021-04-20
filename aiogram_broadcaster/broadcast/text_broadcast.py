@@ -5,11 +5,11 @@ from typing import Dict, Optional, Union
 from aiogram import Bot
 from aiogram.utils import exceptions
 
-from .types import ChatsType, MarkupType, TextType, ChatIdType
-from .base import BaseBroadcaster
+from aiogram_broadcaster.types import ChatsType, MarkupType, TextType, ChatIdType
+from aiogram_broadcaster.broadcast.base_broadcast import BaseBroadcast
 
 
-class TextBroadcaster(BaseBroadcaster):
+class TextBroadcast(BaseBroadcast):
     def __init__(
             self,
             chats: ChatsType,
@@ -33,10 +33,7 @@ class TextBroadcaster(BaseBroadcaster):
             reply_to_message_id=reply_to_message_id,
             allow_sending_without_reply=allow_sending_without_reply,
             reply_markup=reply_markup,
-            bot=bot,
-            bot_token=bot_token,
             timeout=timeout,
-            logger=logger,
         )
         self.text = Template(text) if isinstance(text, str) else text
         self.parse_mode = parse_mode
@@ -50,36 +47,18 @@ class TextBroadcaster(BaseBroadcaster):
 
     async def send(
             self,
+            bot: Bot,
             chat_id: ChatIdType,
             chat_args: Dict,
-    ) -> bool:
-        try:
-            await self.bot.send_message(
-                chat_id=chat_id,
-                text=self.text.safe_substitute(chat_args),
-                parse_mode=self.parse_mode,
-                disable_web_page_preview=self.disable_web_page_preview,
-                disable_notification=self.disable_notification,
-                reply_to_message_id=self.reply_to_message_id,
-                allow_sending_without_reply=self.allow_sending_without_reply,
-                reply_markup=self.reply_markup,
-            )
-        except exceptions.RetryAfter as e:
-            self.logger.debug(
-                f"Target [ID:{chat_id}]: Flood limit is exceeded. Sleep {e.timeout} seconds."
-            )
-            await sleep(e.timeout)
-            return await self.send(chat_id, chat_args)  # Recursive call
-        except (
-                exceptions.BotBlocked,
-                exceptions.ChatNotFound,
-                exceptions.UserDeactivated,
-                exceptions.ChatNotFound
-        ) as e:
-            self.logger.debug(f"Target [ID:{chat_id}]: {e.match}")
-        except exceptions.TelegramAPIError:
-            self.logger.exception(f"Target [ID:{chat_id}]: failed")
-        else:
-            self.logger.debug(f"Target [ID:{chat_id}]: success")
-            return True
-        return False
+    ) -> Optional[int]:
+        message = await bot.send_message(
+            chat_id=chat_id,
+            text=self.text.safe_substitute(chat_args),
+            parse_mode=self.parse_mode,
+            disable_web_page_preview=self.disable_web_page_preview,
+            disable_notification=self.disable_notification,
+            reply_to_message_id=self.reply_to_message_id,
+            allow_sending_without_reply=self.allow_sending_without_reply,
+            reply_markup=self.reply_markup,
+        )
+        return message.message_id
