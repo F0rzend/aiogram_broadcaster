@@ -31,10 +31,15 @@ class BaseBroadcast(abc.ABC):
         self._failure: List[Dict] = []
 
     def __str__(self) -> str:
-        attributes = [
-            ('is_running', self._is_running),
-        ]
+        broadcast_id = getattr(self, 'id', None)
+        if broadcast_id is not None:
+            attributes = [
+                ('id', broadcast_id)
+            ]
+        else:
+            attributes = []
         if self._is_running:
+            attributes.append(('is_running', self._is_running))
             attributes.append(('progress', f'{len(self.successful)}/{len(self.chats)}'))
         attributes = '; '.join((f'{key}={str(value)}' for key, value in attributes))
         return f'<{self.__class__.__name__}({attributes})>'

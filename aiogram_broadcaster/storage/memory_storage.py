@@ -45,7 +45,7 @@ class MemoryStorage(BaseStorage):
             self.data[broadcast_id]['successful'].append(dict(chat=chat, message_id=message_id))
 
     async def get_successful(self, broadcast_id: int) -> List[Dict]:
-        return self.data[broadcast_id]['successful']
+        return self.data[broadcast_id].get('successful', [])
 
     async def add_failure(self, broadcast_id: int, chat: Dict):
         try:
@@ -56,4 +56,4 @@ class MemoryStorage(BaseStorage):
             self.data[broadcast_id]['failure'].append(dict(chat=chat))
 
     async def get_failure(self, broadcast_id: int) -> List[Dict]:
-        return self.data[broadcast_id]['failure']
+        return self.data[broadcast_id].get('failure', [])
