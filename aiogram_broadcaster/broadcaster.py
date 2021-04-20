@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import Optional, Dict, Tuple
+from typing import Optional, Dict, Tuple, List
 
 from aiogram import Bot
 from aiogram.utils import exceptions
@@ -61,7 +61,7 @@ class AiogramBroadcaster:
         text_args = chat
         return chat_id, text_args
 
-    async def run(self, broadcast: BaseBroadcast) -> Tuple[list, list]:
+    async def run(self, broadcast: BaseBroadcast) -> Tuple[List[Dict], List[Dict]]:
         broadcast_id = await self.storage.add_broadcast(broadcast=broadcast)
         while await self.storage.get_chats(broadcast_id):
             chat = await self.storage.pop_chat(broadcast_id)
