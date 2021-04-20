@@ -61,7 +61,7 @@ class AiogramBroadcaster:
         text_args = chat
         return chat_id, text_args
 
-    async def run(self, broadcast: BaseBroadcast) -> dict:
+    async def run(self, broadcast: BaseBroadcast) -> Tuple[list, list]:
         broadcast_id = await self.storage.add_broadcast(broadcast=broadcast)
         while await self.storage.get_chats(broadcast_id):
             chat = await self.storage.pop_chat(broadcast_id)
@@ -98,4 +98,4 @@ class AiogramBroadcaster:
         logging.debug(
             f"{broadcast} finished [{len(successful)}/{len(failure)}]"
         )
-        return failure
+        return successful, failure

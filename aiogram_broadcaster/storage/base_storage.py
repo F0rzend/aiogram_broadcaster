@@ -37,7 +37,7 @@ class BaseStorage(ABC):
         pass
 
     @abstractmethod
-    async def get_successful(self, broadcast_id: int) -> dict:
+    async def get_successful(self, broadcast_id: int) -> list:
         pass
 
     @abstractmethod
@@ -45,5 +45,5 @@ class BaseStorage(ABC):
         pass
 
     @abstractmethod
-    async def get_failure(self, broadcast_id: int) -> dict:
+    async def get_failure(self, broadcast_id: int) -> list:
         pass
