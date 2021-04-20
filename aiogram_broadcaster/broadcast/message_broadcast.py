@@ -22,10 +22,7 @@ class MessageBroadcast(BaseBroadcast):
             reply_to_message_id: Optional[int] = None,
             allow_sending_without_reply: Optional[bool] = None,
             reply_markup: MarkupType = None,
-            bot: Optional[Bot] = None,
-            bot_token: Optional[str] = None,
-            timeout: float = 0.02,
-            logger=__name__
+            timeout: float = 0.05,
     ):
         super().__init__(
             chats=chats,
@@ -34,20 +31,10 @@ class MessageBroadcast(BaseBroadcast):
             reply_to_message_id=reply_to_message_id,
             allow_sending_without_reply=allow_sending_without_reply,
             reply_markup=reply_markup,
-            bot=bot,
-            bot_token=bot_token,
             timeout=timeout,
-            logger=logger,
         )
         self._setup_chats(chats)
         self.message = message
-        self.bot = bot if bot else Bot.get_current()
-        self.timeout = timeout
-
-        if not isinstance(logger, logging.Logger):
-            logger = logging.getLogger(logger)
-
-        self.logger = logger
 
     @staticmethod
     async def send_copy(
@@ -172,36 +159,19 @@ class MessageBroadcast(BaseBroadcast):
 
     async def send(
             self,
+            bot: Bot,
             chat_id: ChatIdType,
             chat_args: Dict,
-    ) -> bool:
-        try:
-            msg = self.get_updated_message(self.message, chat_args)
-            await self.send_copy(
-                message=msg,
-                chat_id=chat_id,
-                disable_notification=self.disable_notification,
-                disable_web_page_preview=self.disable_web_page_preview,
-                reply_to_message_id=self.reply_to_message_id,
-                allow_sending_without_reply=self.allow_sending_without_reply,
-                reply_markup=self.reply_markup,
-            )
-        except exceptions.RetryAfter as e:
-            self.logger.debug(
-                f"Target [ID:{chat_id}]: Flood limit is exceeded. Sleep {e.timeout} seconds."
-            )
-            await sleep(e.timeout)
-            return await self.send(chat_id, chat_args)  # Recursive call
-        except (
-                exceptions.BotBlocked,
-                exceptions.ChatNotFound,
-                exceptions.UserDeactivated,
-                exceptions.ChatNotFound
-        ) as e:
-            self.logger.debug(f"Target [ID:{chat_id}]: {e.match}")
-        except exceptions.TelegramAPIError:
-            self.logger.exception(f"Target [ID:{chat_id}]: failed")
-        else:
-            self.logger.debug(f"Target [ID:{chat_id}]: success")
-            return True
-        return False
+    ) -> Optional[int]:
+        msg = self.get_updated_message(self.message, chat_args)
+        message = await self.send_copy(
+            message=msg,
+            chat_id=chat_id,
+            disable_notification=self.disable_notification,
+            disable_web_page_preview=self.disable_web_page_preview,
+            reply_to_message_id=self.reply_to_message_id,
+            allow_sending_without_reply=self.allow_sending_without_reply,
+            reply_markup=self.reply_markup,
+        )
+        if message:
+            return message.message_id

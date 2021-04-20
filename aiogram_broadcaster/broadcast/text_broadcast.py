@@ -1,9 +1,7 @@
-from asyncio import sleep
 from string import Template
 from typing import Dict, Optional, Union
 
 from aiogram import Bot
-from aiogram.utils import exceptions
 
 from aiogram_broadcaster.types import ChatsType, MarkupType, TextType, ChatIdType
 from aiogram_broadcaster.broadcast.base_broadcast import BaseBroadcast
@@ -21,10 +19,7 @@ class TextBroadcast(BaseBroadcast):
             reply_to_message_id: Optional[int] = None,
             allow_sending_without_reply: Optional[bool] = None,
             reply_markup: MarkupType = None,
-            bot: Optional[Bot] = None,
-            bot_token: Optional[str] = None,
-            timeout: float = 0.02,
-            logger=__name__,
+            timeout: float = 0.05,
     ):
         super().__init__(
             chats=chats,
@@ -61,4 +56,5 @@ class TextBroadcast(BaseBroadcast):
             allow_sending_without_reply=self.allow_sending_without_reply,
             reply_markup=self.reply_markup,
         )
-        return message.message_id
+        if message:
+            return message.message_id
