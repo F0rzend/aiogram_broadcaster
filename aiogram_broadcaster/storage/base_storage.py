@@ -17,6 +17,14 @@ class BaseStorage(ABC):
         pass
 
     @abstractmethod
+    async def get_broadcast(self, broadcast_id: int) -> BaseBroadcast:
+        pass
+
+    @abstractmethod
+    async def get_chats(self, broadcast_id: int) -> list:
+        pass
+
+    @abstractmethod
     async def pop_chat(self, broadcast_id) -> dict:
         pass
 
@@ -29,5 +37,13 @@ class BaseStorage(ABC):
         pass
 
     @abstractmethod
+    async def get_successful(self, broadcast_id: int) -> dict:
+        pass
+
+    @abstractmethod
     async def add_failure(self, broadcast_id: int, chat: dict):
+        pass
+
+    @abstractmethod
+    async def get_failure(self, broadcast_id: int) -> dict:
         pass

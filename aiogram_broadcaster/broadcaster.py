@@ -61,7 +61,7 @@ class AiogramBroadcaster:
         text_args = chat
         return chat_id, text_args
 
-    async def run(self, broadcast: BaseBroadcast):
+    async def run(self, broadcast: BaseBroadcast) -> dict:
         broadcast_id = await self.storage.add_broadcast(broadcast=broadcast)
         while await self.storage.get_chats(broadcast_id):
             chat = await self.storage.pop_chat(broadcast_id)
@@ -93,3 +93,9 @@ class AiogramBroadcaster:
                 await self.storage.add_successful(broadcast_id, chat, message_id)
 
             await asyncio.sleep(broadcast.timeout)
+        successful = await self.storage.get_successful(broadcast_id)
+        failure = await self.storage.get_failure(broadcast_id)
+        logging.debug(
+            f"{broadcast} finished [{len(successful)}/{len(failure)}]"
+        )
+        return failure

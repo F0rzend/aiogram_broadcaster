@@ -22,6 +22,9 @@ class MemoryStorage(BaseStorage):
         self.data[broadcast_id]['chats'] = broadcast.chats
         return broadcast_id
 
+    async def get_broadcast(self, broadcast_id: int) -> BaseBroadcast:
+        return self.broadcasts[broadcast_id]
+
     async def get_chats(self, broadcast_id: int) -> list:
         return self.data[broadcast_id]['chats']
 
@@ -32,7 +35,23 @@ class MemoryStorage(BaseStorage):
         self.data[broadcast_id]['chats'].append(chat)
 
     async def add_successful(self, broadcast_id: int, chat: dict, message_id: int):
-        self.data[broadcast_id].get('successful', []).append(dict(chat=chat, message_id=message_id))
+        try:
+            self.data[broadcast_id]['successful']
+        except KeyError:
+            self.data[broadcast_id]['successful'] = []
+        finally:
+            self.data[broadcast_id]['successful'].append(dict(chat=chat, message_id=message_id))
+
+    async def get_successful(self, broadcast_id: int) -> dict:
+        return self.data[broadcast_id]['successful']
 
     async def add_failure(self, broadcast_id: int, chat: dict):
-        self.data[broadcast_id].get('successful', []).append(dict(chat=chat))
+        try:
+            self.data[broadcast_id]['failure']
+        except KeyError:
+            self.data[broadcast_id]['failure'] = []
+        finally:
+            self.data[broadcast_id]['failure'].append(dict(chat=chat))
+
+    async def get_failure(self, broadcast_id: int) -> dict:
+        return self.data[broadcast_id]['failure']
