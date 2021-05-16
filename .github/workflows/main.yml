@@ -1,10 +1,8 @@
 name: Upload Python Package
 
 on:
-  push:
-    branches: [ $default-branch ]
-  pull_request:
-    branches: [ $default-branch ]
+  release:
+    types: [ created ]
 
 jobs:
   deploy:
