@@ -1,4 +1,3 @@
-import logging
 from asyncio import sleep
 from copy import deepcopy
 from string import Template
@@ -39,15 +38,7 @@ class MessageBroadcaster(BaseBroadcaster):
             timeout=timeout,
             logger=logger,
         )
-        self._setup_chats(chats)
         self.message = message
-        self.bot = bot if bot else Bot.get_current()
-        self.timeout = timeout
-
-        if not isinstance(logger, logging.Logger):
-            logger = logging.getLogger(logger)
-
-        self.logger = logger
 
     @staticmethod
     async def send_copy(

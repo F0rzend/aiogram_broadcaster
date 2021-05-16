@@ -12,7 +12,7 @@ async def main():
     broadcaster = TextBroadcaster(
         'USERS IDS HERE',
         'Hello, we are <b>$service</b>\nYour id: <code>$chat_id</code>',
-        args=dict(service='fonco'),  # You can pass arguments, that will be used in all chats
+        kwargs=dict(service='fonco'),  # You can pass arguments, that will be used in all chats
         bot_token='BOT TOKEN HERE'
     )
     try:

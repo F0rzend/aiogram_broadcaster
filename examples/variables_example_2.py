@@ -1,6 +1,6 @@
 from aiogram import Bot, Dispatcher, types
 
-from aiogram_broadcaster import TextBroadcaster
+from aiogram_broadcaster import MessageBroadcaster
 
 import asyncio
 import logging
@@ -17,7 +17,7 @@ async def message_handler(msg: types.Message):
         )
 
     ]
-    await TextBroadcaster(chats, text="$mention, u'r id: <code>$chat_id</code>", parse_mode='HTML').run()  # run mailing
+    await MessageBroadcaster(chats, message=msg).run()  # run mailing
 
 
 async def main():
