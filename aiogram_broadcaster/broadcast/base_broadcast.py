@@ -3,6 +3,7 @@ from typing import Dict, Optional, List, Union
 
 from aiogram import Bot
 
+from aiogram_broadcaster.defaults import DEFAULT_DELAY
 from aiogram_broadcaster.types import ChatsType, MarkupType, ChatIdType
 from aiogram_broadcaster.exceptions import RunningError
 
@@ -17,7 +18,7 @@ class BaseBroadcast(abc.ABC):
         reply_to_message_id: Optional[int] = None,
         allow_sending_without_reply: Optional[bool] = None,
         reply_markup: MarkupType = None,
-        timeout: float = 0.05,
+        delay: float = DEFAULT_DELAY,
     ):
         self._setup_chats(chats, kwargs)
         self.disable_notification = disable_notification
@@ -25,7 +26,8 @@ class BaseBroadcast(abc.ABC):
         self.reply_to_message_id = reply_to_message_id
         self.allow_sending_without_reply = allow_sending_without_reply
         self.reply_markup = reply_markup
-        self.timeout = timeout
+        self._setup_delay(delay)
+
         self._is_running: bool = False
         self._successful: List[Dict] = []
         self._failure: List[Dict] = []
@@ -94,6 +96,9 @@ class BaseBroadcast(abc.ABC):
                 ]
         else:
             raise AttributeError(f'argument chats: expected {ChatsType}, got "{type(chats)}"')
+
+    def _setup_delay(self, delay: Optional[float]):
+        self.delay = delay if delay else DEFAULT_DELAY
 
     @staticmethod
     def _chek_identical_keys(dicts: List) -> bool:

@@ -6,8 +6,12 @@ from aiogram import Bot
 from aiogram.utils import exceptions
 
 from aiogram_broadcaster.broadcast.base_broadcast import BaseBroadcast
+from aiogram_broadcaster.defaults import DEFAULT_DELAY
 from aiogram_broadcaster.storage import BaseStorage, MemoryStorage
 from aiogram_broadcaster.types import ChatIdType
+
+
+logger = logging.getLogger('aiogram_broadcaster')
 
 
 class AiogramBroadcaster:
@@ -16,11 +20,13 @@ class AiogramBroadcaster:
         storage: Optional[BaseStorage] = None,
         bot: Optional[Bot] = None,
         bot_token: Optional[str] = None,
-        logger=__name__,
+        max_retries: int = 200,
+        delay: Optional[float] = None,
     ):
         self._setup_storage(storage)
         self._setup_bot(bot, bot_token)
-        self._setup_logger(logger)
+        self._setup_delay(delay)
+        self.max_retries = max_retries
 
     def _setup_storage(self, storage: Optional[BaseStorage]):
         self.storage = storage if storage else MemoryStorage()
@@ -45,15 +51,16 @@ class AiogramBroadcaster:
             self.bot = bot
         return bot
 
-    def _setup_logger(self, logger):
-        if isinstance(logger, str):
-            logger = logging.getLogger(logger)
-
-        self.logger = logger
+    def _setup_delay(self, delay: Optional[float]):
+        self.delay = delay if delay else DEFAULT_DELAY
 
     async def close_bot(self) -> None:
         logging.warning('GOODBYE')
         await self.bot.session.close()
+
+    @staticmethod
+    async def _get_delay(*delays: int) -> int:
+        return max(delays)
 
     @staticmethod
     def _parse_args(chat: Dict) -> Tuple[ChatIdType, dict]:
@@ -67,32 +74,33 @@ class AiogramBroadcaster:
             chat = await self.storage.pop_chat(broadcast_id)
             chat_id, chat_args = self._parse_args(chat)
             message_id = None
-            try:
-                message_id = await broadcast.send(bot=self.bot, chat_id=chat_id, chat_args=chat_args)
-            except exceptions.RetryAfter as e:
-                self.logger.debug(
-                    f"Target [ID:{chat_id}]: Flood limit is exceeded. Sleep {e.timeout} seconds."
-                )
-                await asyncio.sleep(e.timeout)
-                await self.storage.append_chat(broadcast_id, chat)
-            except (
-                    exceptions.BotBlocked,
-                    exceptions.ChatNotFound,
-                    exceptions.UserDeactivated,
-                    exceptions.ChatNotFound
-            ) as e:
-                self.logger.debug(f"Target [ID:{chat_id}]: {e.match}")
-            except exceptions.TelegramAPIError:
-                self.logger.exception(f"Target [ID:{chat_id}]: failed")
-            else:
-                self.logger.debug(f"Target [ID:{chat_id}]: success")
+            for _ in range(self.max_retries):
+                try:
+                    message_id = await broadcast.send(bot=self.bot, chat_id=chat_id, chat_args=chat_args)
+                except exceptions.RetryAfter as e:
+                    logger.debug(
+                        f"Target [ID:{chat_id}]: Flood limit is exceeded. Sleep {e.timeout} seconds."
+                    )
+                    await asyncio.sleep(e.timeout)
+                except (
+                        exceptions.BotBlocked,
+                        exceptions.ChatNotFound,
+                        exceptions.UserDeactivated,
+                        exceptions.ChatNotFound
+                ) as e:
+                    logger.debug(f"Target [ID:{chat_id}]: {e.match}")
+                except exceptions.TelegramAPIError:
+                    logger.exception(f"Target [ID:{chat_id}]: failed")
+                else:
+                    logger.debug(f"Target [ID:{chat_id}]: success")
 
             if not message_id:
                 await self.storage.add_failure(broadcast_id, chat)
             else:
                 await self.storage.add_successful(broadcast_id, chat, message_id)
 
-            await asyncio.sleep(broadcast.timeout)
+            await asyncio.sleep(await self._get_delay(self.delay, broadcast.delay))
+
         successful = await self.storage.get_successful(broadcast_id)
         failure = await self.storage.get_failure(broadcast_id)
         logging.debug(

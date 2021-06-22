@@ -19,7 +19,7 @@ class TextBroadcast(BaseBroadcast):
             reply_to_message_id: Optional[int] = None,
             allow_sending_without_reply: Optional[bool] = None,
             reply_markup: MarkupType = None,
-            timeout: float = 0.05,
+            delay: Optional[float] = None,
     ):
         super().__init__(
             chats=chats,
@@ -28,7 +28,7 @@ class TextBroadcast(BaseBroadcast):
             reply_to_message_id=reply_to_message_id,
             allow_sending_without_reply=allow_sending_without_reply,
             reply_markup=reply_markup,
-            timeout=timeout,
+            delay=delay,
         )
         self.text = Template(text) if isinstance(text, str) else text
         self.parse_mode = parse_mode
