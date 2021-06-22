@@ -67,8 +67,10 @@ class AiogramBroadcaster:
     def _parse_args(chat: Dict) -> Tuple[ChatIdType, Optional[str], dict]:
         chat_id = chat.get('chat_id')
         text_args = chat
-        with suppress(KeyError):
-            bot_token = chat.pop('bot_token') or None
+        try:
+            bot_token = chat.pop('bot_token')
+        except KeyError:
+            bot_token = None
         return chat_id, bot_token, text_args
 
     async def run(self, broadcast: BaseBroadcast) -> Tuple[List[Dict], List[Dict]]:
@@ -80,8 +82,10 @@ class AiogramBroadcaster:
             for _ in range(self.max_retries):
                 try:
                     if bot_token:
-                        with self.bot.with_token(bot_token) as bot:
-                            message_id = await broadcast.send(bot=bot, chat_id=chat_id, chat_args=chat_args)
+                        async with self.bot.with_token(bot_token):
+                            message_id = await broadcast.send(bot=self.bot, chat_id=chat_id, chat_args=chat_args)
+                    else:
+                        message_id = await broadcast.send(bot=self.bot, chat_id=chat_id, chat_args=chat_args)
                 except exceptions.RetryAfter as e:
                     logger.debug(
                         f"Target [ID:{chat_id}]: Flood limit is exceeded. Sleep {e.timeout} seconds."
@@ -98,6 +102,7 @@ class AiogramBroadcaster:
                     logger.exception(f"Target [ID:{chat_id}]: failed")
                 else:
                     logger.debug(f"Target [ID:{chat_id}]: success")
+                    break
 
             if message_id:
                 await self.storage.add_successful(broadcast_id, chat, message_id)

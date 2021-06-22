@@ -8,9 +8,9 @@ import logging
 
 async def main():
     storage = MemoryStorage()
-    broadcaster = AiogramBroadcaster(bot_token='BOT_TOKEN_HERE', storage=storage)
+    broadcaster = AiogramBroadcaster(bot_token='1474246112:AAGAZVxUuwZTaG7m7f1P3d1UR8M14KlY4y0', storage=storage)
     try:
-        await broadcaster.run(TextBroadcast(chats='CHATS_IDS_HERE', text='test'))
+        await broadcaster.run(TextBroadcast(chats='525340304', text='test'))
     finally:
         await broadcaster.close_bot()
 
