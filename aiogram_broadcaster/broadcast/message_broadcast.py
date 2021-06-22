@@ -1,12 +1,9 @@
-import logging
-from asyncio import sleep
 from copy import deepcopy
 from string import Template
 from typing import Dict, Optional
 
 from aiogram import Bot
 from aiogram.types import Message, ParseMode
-from aiogram.utils import exceptions
 
 from aiogram_broadcaster.types import ChatsType, MarkupType, ChatIdType
 from aiogram_broadcaster.broadcast.base_broadcast import BaseBroadcast
