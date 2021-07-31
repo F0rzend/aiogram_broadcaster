@@ -39,6 +39,10 @@ class BaseStorage(ABC):
         pass
 
     @abstractmethod
+    async def clear_chats(self, broadcast_id) -> None:
+        pass
+
+    @abstractmethod
     async def append_chat(self, broadcast_id: int, chat: Dict):
         pass
 

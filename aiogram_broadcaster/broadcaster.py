@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import Optional, Dict, Tuple, List
+from typing import Optional, Dict, Tuple, List, Union
 
 from aiogram import Bot
 from aiogram.utils import exceptions
@@ -118,6 +118,11 @@ class AiogramBroadcaster:
         )
         return successful, failure
 
+    async def _get_broadcast(self, broadcast: Union[BaseBroadcast, int]) -> BaseBroadcast:
+        if isinstance(broadcast, BaseBroadcast):
+            return broadcast
+        return await self.storage.get_broadcast(broadcast)
+
     async def run(self, broadcast: BaseBroadcast, in_task: bool = False) -> int:
         broadcast_id = await self.storage.init_broadcast(broadcast=broadcast)
         if in_task:
@@ -125,3 +130,13 @@ class AiogramBroadcaster:
         else:
             await self._run_broadcast(broadcast)
         return broadcast_id
+
+    async def stop(
+            self, broadcast: Union[BaseBroadcast, int], return_chats: bool = True
+    ) -> Optional[Tuple[List[Dict], List[Dict]]]:
+        broadcast: BaseBroadcast = await self._get_broadcast(broadcast)
+        await self.storage.clear_chats(broadcast.id)
+        if return_chats:
+            successful = await self.storage.get_successful(broadcast.id)
+            failure = await self.storage.get_failure(broadcast.id)
+            return successful, failure

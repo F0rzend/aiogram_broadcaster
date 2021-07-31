@@ -31,6 +31,9 @@ class MemoryStorage(BaseStorage):
     async def pop_chat(self, broadcast_id) -> Dict:
         return self.data[broadcast_id]['chats'].pop()
 
+    async def clear_chats(self, broadcast_id) -> None:
+        self.data[broadcast_id]['chats'].clear()
+
     async def append_chat(self, broadcast_id: int, chat: Dict):
         self.data[broadcast_id]['chats'].append(chat)
 
