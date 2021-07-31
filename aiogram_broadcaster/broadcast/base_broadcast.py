@@ -31,6 +31,20 @@ class BaseBroadcast(abc.ABC):
         self._is_running: bool = False
         self._successful: List[Dict] = []
         self._failure: List[Dict] = []
+        self._id = None
+
+    @property
+    def id(self) -> int:
+        if self._id is not None:
+            return self._id
+        raise ValueError("Broadcast hasn't id yet")
+
+    @id.setter
+    def id(self, value: int):
+        if self._id is None:
+            self._id = value
+        else:
+            raise ValueError("Broadcast already has id")
 
     def __str__(self) -> str:
         broadcast_id = getattr(self, 'id', None)

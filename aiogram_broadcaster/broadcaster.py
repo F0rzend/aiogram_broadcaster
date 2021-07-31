@@ -1,6 +1,5 @@
 import asyncio
 import logging
-from contextlib import suppress
 from typing import Optional, Dict, Tuple, List
 
 from aiogram import Bot
@@ -13,6 +12,8 @@ from aiogram_broadcaster.types import ChatIdType
 
 
 logger = logging.getLogger('aiogram_broadcaster')
+
+BROADCAST_TASK_NAME = 'broadcast:{id}'
 
 
 class AiogramBroadcaster:
@@ -73,10 +74,9 @@ class AiogramBroadcaster:
             bot_token = None
         return chat_id, bot_token, text_args
 
-    async def run(self, broadcast: BaseBroadcast) -> Tuple[List[Dict], List[Dict]]:
-        broadcast_id = await self.storage.add_broadcast(broadcast=broadcast)
-        while await self.storage.get_chats(broadcast_id):
-            chat = await self.storage.pop_chat(broadcast_id)
+    async def _run_broadcast(self, broadcast: BaseBroadcast) -> Tuple[List[Dict], List[Dict]]:
+        while await self.storage.get_chats(broadcast.id):
+            chat = await self.storage.pop_chat(broadcast.id)
             chat_id, bot_token, chat_args = self._parse_args(chat)
             message_id = None
             for _ in range(self.max_retries):
@@ -105,15 +105,23 @@ class AiogramBroadcaster:
                     break
 
             if message_id:
-                await self.storage.add_successful(broadcast_id, chat, message_id)
+                await self.storage.add_successful(broadcast.id, chat, message_id)
             else:
-                await self.storage.add_failure(broadcast_id, chat)
+                await self.storage.add_failure(broadcast.id, chat)
 
             await asyncio.sleep(await self._get_delay(self.delay, broadcast.delay))
 
-        successful = await self.storage.get_successful(broadcast_id)
-        failure = await self.storage.get_failure(broadcast_id)
+        successful = await self.storage.get_successful(broadcast.id)
+        failure = await self.storage.get_failure(broadcast.id)
         logging.debug(
             f"{broadcast} finished [{len(successful)}/{len(failure)}]"
         )
         return successful, failure
+
+    async def run(self, broadcast: BaseBroadcast, in_task: bool = False) -> int:
+        broadcast_id = await self.storage.init_broadcast(broadcast=broadcast)
+        if in_task:
+            asyncio.create_task(self._run_broadcast(broadcast), name=BROADCAST_TASK_NAME.format(id=broadcast_id))
+        else:
+            await self._run_broadcast(broadcast)
+        return broadcast_id

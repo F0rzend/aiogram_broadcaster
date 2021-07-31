@@ -5,6 +5,9 @@ from aiogram_broadcaster.broadcast.base_broadcast import BaseBroadcast
 
 
 class BaseStorage(ABC):
+    def __init__(self):
+        self.broadcasts: dict = {}
+
     @abstractmethod
     async def close(self):
         pass
@@ -14,8 +17,14 @@ class BaseStorage(ABC):
         pass
 
     @abstractmethod
-    async def add_broadcast(self, broadcast: BaseBroadcast) -> int:
+    async def _add_broadcast(self, broadcast: BaseBroadcast):
         pass
+
+    async def init_broadcast(self, broadcast: BaseBroadcast) -> int:
+        broadcast_id = len(self.broadcasts)
+        broadcast.id = broadcast_id
+        await self._add_broadcast(broadcast)
+        return broadcast_id
 
     @abstractmethod
     async def get_broadcast(self, broadcast_id: int) -> BaseBroadcast:
