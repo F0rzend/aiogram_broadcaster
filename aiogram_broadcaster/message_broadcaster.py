@@ -102,7 +102,11 @@ class MessageBroadcaster(BaseBroadcaster):
                 video_note=message.video_note.file_id, **kwargs
             )
         elif message.voice:
-            return await message.bot.send_voice(voice=message.voice.file_id, **kwargs)
+            return await message.bot.send_voice(
+                voice=message.voice.file_id,
+                caption=text,
+                **kwargs,
+            )
         elif message.contact:
             kwargs.pop("parse_mode")
             return await message.bot.send_contact(
