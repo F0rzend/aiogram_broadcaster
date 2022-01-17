@@ -189,7 +189,6 @@ class MessageBroadcaster(BaseBroadcaster):
             return await self.send(chat_id, chat_args)  # Recursive call
         except (
                 exceptions.BotBlocked,
-                exceptions.ChatNotFound,
                 exceptions.UserDeactivated,
                 exceptions.ChatNotFound
         ) as e:
